@@ -3,9 +3,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/utils/api";
 import { User, Mail, Phone, MapPin, Camera, Save, Loader2, CheckCircle, AlertCircle } from "lucide-react";
+
 const DEFAULT_AVATAR = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
+
 export default function ProfilePage() {
-  const { user, setUser } = useAuth();
+  const { user, updateUser } = useAuth(); //
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -27,21 +29,25 @@ export default function ProfilePage() {
       });
     }
   }, [user]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setSuccess("");
     setError("");
+
     const userEmail = user?.email || formData.email;
     if (!userEmail) {
       setError("User email is missing. Please log in again.");
       setLoading(false);
       return;
     }
+
     try {
       const payload = {
         displayName: formData.displayName,
@@ -49,10 +55,14 @@ export default function ProfilePage() {
         address: formData.address,
         photoURL: formData.photoURL?.trim() || DEFAULT_AVATAR,
       };
+
       const res = await api.put("/api/users/profile", payload);
-      setSuccess("Profile updated successfully!");
-      if (setUser) {
-        setUser({ ...user, ...payload, name: payload.displayName, photo: payload.photoURL });
+      setSuccess("Profile updated successfully!");      if (updateUser) {
+        updateUser({
+          ...payload,
+          name: payload.displayName,
+          photo: payload.photoURL,
+        });
       }
     } catch (err) {
       console.error("Profile Update Error:", err);
@@ -64,24 +74,28 @@ export default function ProfilePage() {
       setLoading(false);
     }
   };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-slate-900">My Profile</h1>
         <p className="text-slate-500 text-sm mt-1">View and update your personal information</p>
       </div>
+
       {success && (
         <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-2xl flex items-center gap-2">
           <CheckCircle size={20} />
           <span>{success}</span>
         </div>
       )}
+
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-center gap-2">
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
+
       <div className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Header & Avatar Section */}
@@ -106,6 +120,7 @@ export default function ProfilePage() {
               </span>
             </div>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Full Name</label>
@@ -122,6 +137,7 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
               <div className="relative">
@@ -135,6 +151,7 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
               <div className="relative">
@@ -149,6 +166,7 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block text-sm font-semibold text-slate-700 mb-2">Profile Image URL</label>
               <div className="relative">
@@ -163,6 +181,7 @@ export default function ProfilePage() {
                 />
               </div>
             </div>
+
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-slate-700 mb-2">Address</label>
               <div className="relative">
@@ -178,6 +197,7 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+
           <div className="flex justify-end pt-4 border-t border-slate-100">
             <button
               type="submit"

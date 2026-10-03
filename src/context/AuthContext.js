@@ -3,11 +3,9 @@ import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 
 export const AuthContext = createContext(null);
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const fetchJwtToken = async (email) => {
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
@@ -19,7 +17,6 @@ export const AuthProvider = ({ children }) => {
       console.error("JWT Token generation error:", err);
     }
   };
-
   useEffect(() => {
     const storedUser = localStorage.getItem("medicare_user");
     if (storedUser) {
@@ -31,13 +28,19 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   }, []);
-
   const loginUser = (userData) => {
     setUser(userData);
     localStorage.setItem("medicare_user", JSON.stringify(userData));
     if (userData?.email) {
       fetchJwtToken(userData.email);
     }
+  };
+  const updateUser = (updatedData) => {
+    setUser((prev) => {
+      const newUser = { ...prev, ...updatedData };
+      localStorage.setItem("medicare_user", JSON.stringify(newUser));
+      return newUser;
+    });
   };
 
   const logoutUser = () => {
@@ -47,7 +50,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loginUser, logoutUser, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, updateUser, loginUser, logoutUser, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );
