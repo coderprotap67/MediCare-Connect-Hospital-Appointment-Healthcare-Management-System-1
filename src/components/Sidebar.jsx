@@ -2,10 +2,16 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useContext } from "react";
+import { AuthContext } from "@/context/AuthContext";
 import { FaCalendarAlt, FaStar, FaUserMd, FaUsers, FaChartBar, FaClock, FaPrescription, FaUser } from "react-icons/fa";
 
-export default function Sidebar({ role }) {
+export default function Sidebar({ role: propRole }) {
   const pathname = usePathname();
+  const { user } = useContext(AuthContext);
+
+  // প্রপস থেকে রোল পেলে সেটা নিবে, তা না হলে Context এর user.role নিবে
+  const currentRole = propRole || user?.role || "patient";
 
   const navLinks = {
     patient: [
@@ -27,7 +33,7 @@ export default function Sidebar({ role }) {
     ],
   };
 
-  const links = navLinks[role] || navLinks.patient;
+  const links = navLinks[currentRole] || navLinks.patient;
 
   return (
     <aside className="w-64 bg-slate-900 text-white min-h-screen p-5 flex flex-col">
