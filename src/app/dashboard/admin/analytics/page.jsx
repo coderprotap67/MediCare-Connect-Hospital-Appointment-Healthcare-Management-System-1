@@ -1,17 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import api from "@/utils/api";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 export default function AdminAnalytics() {
   const [stats, setStats] = useState({ totalRevenue: 0, totalDoctors: 0, totalPatients: 0, totalAppointments: 0 });
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    fetch("http://localhost:5000/api/admin/analytics", {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then((res) => res.json())
-      .then((data) => setStats(data));
+    api.get("/api/admin/analytics")
+      .then((res) => setStats(res.data))
+      .catch((err) => console.error("Error fetching analytics:", err));
   }, []);
 
   const chartData = [
