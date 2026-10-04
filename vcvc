@@ -1,8 +1,0 @@
-১. আপনার ফোল্ডার স্ট্রাকচারের বর্তমান অবস্থা ও প্রয়োজনীয় পরিবর্তন
-আপনার dashboard এর ভেতরে ৩ ধরণের অ্যাক্সেস রয়েছে:
-
-admin/ → এখানে অ্যাডমিনের ফিচার থাকবে (analytics, users)।
-
-doctor/ → ডাক্তারের নিজস্ব ড্যাশবোর্ড (prescriptions, schedule, manage-appointments, my-reviews)।
-
-patient/ → রোগীর ড্যাশবোর্ড।

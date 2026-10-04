@@ -48,11 +48,13 @@ export default function PatientDashboard() {
       setLoading(false);
     }
   }, [user?.email]);
+
   useEffect(() => {
     if (user?.email) {
       fetchAppointments();
     }
   }, [user?.email, fetchAppointments]);
+
   const handleCancel = async (id) => {
     if (!confirm("Are you sure you want to cancel this appointment?")) {
       return;
@@ -248,6 +250,9 @@ export default function PatientDashboard() {
                                       appointment.doctorId?.image ||
                                       "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=500"
                                     }
+                                    onError={(e) => {
+                                      e.target.src = "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=500";
+                                    }}
                                     alt={
                                       appointment.doctorName ||
                                       appointment.doctor?.doctorName ||
@@ -369,8 +374,12 @@ export default function PatientDashboard() {
                 <img
                   src={
                     user?.photoURL ||
+                    user?.photo ||
                     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500"
                   }
+                  onError={(e) => {
+                    e.target.src = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500";
+                  }}
                   alt="Profile"
                   className="w-20 h-20 rounded-full object-cover border-2 border-sky-500"
                 />

@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -7,26 +6,42 @@ import Link from "next/link";
 import api from "@/utils/api";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase/firebase.config";
-
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { loginUser } = useContext(AuthContext);
   const router = useRouter();
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     try {
-      const mockUser = { email, role: "patient", name: "Patient User" };
-      loginUser(mockUser);
-      router.push("/dashboard/patient");
+      const res = await api.post("/api/auth/login", { email, password });
+      const token = res.data?.token || res.data?.accessToken;
+      const user = res.data?.user || res.data;
+
+      if (token) {
+        localStorage.setItem("medicare_token", token);
+        localStorage.setItem("token", token);
+      }
+
+      if (loginUser) {
+        loginUser(user);
+      }
+      if (user?.role === "admin") {
+        router.push("/dashboard/admin/analytics");
+      } else if (user?.role === "doctor") {
+        router.push("/dashboard/doctor");
+      } else {
+        router.push("/dashboard/patient");
+      }
     } catch (err) {
-      setError("Invalid credentials");
+      console.error("Login Error:", err);
+      setError(err?.response?.data?.message || "Invalid email or password");
     }
   };
 
+  // গুগল দিয়ে সাইন-ইন
   const handleGoogleSignIn = async () => {
     setError("");
     try {
@@ -42,10 +57,16 @@ export default function LoginPage() {
         status: "active",
       };
 
-      await api.post("/api/users", userData);
+      const res = await api.post("/api/users", userData);
+
+      const token = res.data?.token || res.data?.accessToken;
+      if (token) {
+        localStorage.setItem("medicare_token", token);
+        localStorage.setItem("token", token);
+      }
 
       if (loginUser) {
-        loginUser(userData);
+        loginUser(res.data?.user || userData);
       }
       router.push("/dashboard/patient");
     } catch (err) {
