@@ -1,23 +1,19 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
-import { Calendar, Clock, User, Mail, CheckCircle, XCircle, Clock3, AlertCircle, Loader2 } from "lucide-react";
-
+import { Calendar, Clock, UserCheck, Mail, AlertCircle, Loader2, XCircle } from "lucide-react";
 export default function ManageAppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
-
   useEffect(() => {
     fetchAppointments();
   }, []);
-
   const fetchAppointments = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/doctor/appointments");
+      const res = await api.get("/api/patient/appointments");
       setAppointments(res.data || []);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to fetch appointments.");
@@ -25,41 +21,38 @@ export default function ManageAppointmentsPage() {
       setLoading(false);
     }
   };
-
-  const handleStatusChange = async (id, status) => {
+  const handleCancelAppointment = async (id) => {
+    if (!confirm("Are you sure you want to cancel this appointment?")) return;
     try {
       setActionLoading(id);
-      const res = await api.patch(`/api/appointments/${id}/status`, { status });
+      const res = await api.patch(`/api/appointments/${id}/cancel`);
       if (res.status === 200 || res.data) {
         setAppointments((prev) =>
           prev.map((item) =>
-            item._id === id ? { ...item, appointmentStatus: status } : item
+            item._id === id ? { ...item, appointmentStatus: "rejected" } : item
           )
         );
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to update appointment status.");
+      alert(err.response?.data?.message || "Failed to cancel appointment.");
     } finally {
       setActionLoading(null);
     }
   };
-
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-extrabold text-slate-900">Manage Appointments</h1>
+        <h1 className="text-3xl font-extrabold text-slate-900">My Appointments</h1>
         <p className="text-slate-500 text-sm mt-1">
-          View and update patient appointment requests and schedules.
+          View and track all your booked doctor appointments.
         </p>
       </div>
-
       {error && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-2xl flex items-center gap-2">
           <AlertCircle size={20} />
           <span>{error}</span>
         </div>
       )}
-
       {loading ? (
         <div className="flex justify-center items-center py-20">
           <Loader2 size={32} className="animate-spin text-sky-600" />
@@ -74,7 +67,7 @@ export default function ManageAppointmentsPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  <th className="py-4 px-6">Patient</th>
+                  <th className="py-4 px-6">Doctor</th>
                   <th className="py-4 px-6">Date & Time</th>
                   <th className="py-4 px-6">Payment</th>
                   <th className="py-4 px-6">Status</th>
@@ -87,12 +80,12 @@ export default function ManageAppointmentsPage() {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         <div className="p-2 bg-sky-50 text-sky-600 rounded-full">
-                          <User size={18} />
+                          <UserCheck size={18} />
                         </div>
                         <div>
-                          <p className="font-semibold text-slate-800">{item.patientName || "Patient"}</p>
+                          <p className="font-semibold text-slate-800">{item.doctorName || "Doctor"}</p>
                           <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                            <Mail size={12} /> {item.patientEmail}
+                            <Mail size={12} /> {item.doctorEmail || "N/A"}
                           </p>
                         </div>
                       </div>
@@ -125,7 +118,7 @@ export default function ManageAppointmentsPage() {
                             ? "bg-sky-50 text-sky-600"
                             : item.appointmentStatus === "completed"
                             ? "bg-emerald-50 text-emerald-600"
-                            : item.appointmentStatus === "rejected"
+                            : item.appointmentStatus === "rejected" || item.appointmentStatus === "cancelled"
                             ? "bg-red-50 text-red-600"
                             : "bg-amber-50 text-amber-600"
                         }`}
@@ -137,32 +130,14 @@ export default function ManageAppointmentsPage() {
                       {actionLoading === item._id ? (
                         <Loader2 size={18} className="animate-spin text-sky-600 inline-block" />
                       ) : (
-                        <div className="flex items-center justify-end gap-2">
-                          {item.appointmentStatus !== "accepted" && item.appointmentStatus !== "completed" && (
-                            <button
-                              onClick={() => handleStatusChange(item._id, "accepted")}
-                              className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs rounded-lg transition flex items-center gap-1"
-                            >
-                              <CheckCircle size={14} /> Accept
-                            </button>
-                          )}
-                          {item.appointmentStatus !== "rejected" && item.appointmentStatus !== "completed" && (
-                            <button
-                              onClick={() => handleStatusChange(item._id, "rejected")}
-                              className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded-lg transition flex items-center gap-1"
-                            >
-                              <XCircle size={14} /> Reject
-                            </button>
-                          )}
-                          {item.appointmentStatus === "accepted" && (
-                            <button
-                              onClick={() => handleStatusChange(item._id, "completed")}
-                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-lg transition flex items-center gap-1"
-                            >
-                              <Clock3 size={14} /> Complete
-                            </button>
-                          )}
-                        </div>
+                        item.appointmentStatus === "pending" && (
+                          <button
+                            onClick={() => handleCancelAppointment(item._id)}
+                            className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs rounded-lg transition flex items-center gap-1 ml-auto"
+                          >
+                            <XCircle size={14} /> Cancel
+                          </button>
+                        )
                       )}
                     </td>
                   </tr>
