@@ -1,26 +1,31 @@
 "use client";
 import Link from "next/link";
 import { useContext, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { useTheme } from "next-themes";
 import { Moon, Sun, LogOut, Stethoscope, Menu, X, LayoutDashboard, User } from "lucide-react";
-
 export default function Navbar() {
   const { user, logoutUser } = useContext(AuthContext);
   const { theme, setTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const router = useRouter(); 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
   const closeMobileMenu = () => setMobileMenuOpen(false);
-
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      closeMobileMenu();
+      router.push("/"); 
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   const defaultPhoto = "https://i.ibb.co/mR3h85y/user-placeholder.png";
-
   return (
     <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100 shadow-sm transition-colors">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        
-        {/* Brand Logo */}
-        <Link href="/" onClick={closeMobileMenu} className="flex items-center gap-2 group">
+                <Link href="/" onClick={closeMobileMenu} className="flex items-center gap-2 group">
           <div className="p-2 bg-gradient-to-tr from-sky-500 to-teal-400 text-white rounded-xl shadow-md shadow-sky-500/20 group-hover:scale-105 transition-transform">
             <Stethoscope size={22} />
           </div>
@@ -28,8 +33,6 @@ export default function Navbar() {
             MediCare <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-teal-500">Connect</span>
           </span>
         </Link>
-
-        {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 text-sm">
           <Link href="/" className="hover:text-sky-600 transition-colors">Home</Link>
           <Link href="/doctors" className="hover:text-sky-600 transition-colors">Find Doctors</Link>
@@ -39,8 +42,6 @@ export default function Navbar() {
             </Link>
           )}
         </div>
-
-        {/* Action Buttons (Desktop & Tablet) */}
         <div className="hidden md:flex items-center gap-3">
           <button 
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")} 
@@ -49,7 +50,6 @@ export default function Navbar() {
           >
             {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
           </button>
-
           {user ? (
             <div className="dropdown dropdown-end">
               <label tabIndex={0} className="btn btn-ghost btn-circle avatar ring-2 ring-sky-500/20">
@@ -67,7 +67,7 @@ export default function Navbar() {
                   </Link>
                 </li>
                 <li>
-                  <button onClick={logoutUser} className="py-2 hover:bg-rose-50 text-rose-600 rounded-lg">
+                  <button onClick={handleLogout} className="py-2 hover:bg-rose-50 text-rose-600 rounded-lg w-full text-left flex items-center gap-2">
                     <LogOut size={16} /> Logout
                   </button>
                 </li>
@@ -84,8 +84,6 @@ export default function Navbar() {
             </div>
           )}
         </div>
-
-        {/* Mobile Right Controls (Theme Toggle + Hamburger Menu Button) */}
         <div className="flex md:hidden items-center gap-2">
           <button 
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")} 
@@ -104,13 +102,9 @@ export default function Navbar() {
         </div>
 
       </div>
-
-      {/* Mobile Drawer Dropdown */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 px-4 pt-3 pb-6 space-y-4 shadow-lg animate-in slide-in-from-top duration-200">
-          
-          {/* Mobile Navigation Links */}
-          <div className="flex flex-col space-y-2 font-medium text-slate-700">
+                    <div className="flex flex-col space-y-2 font-medium text-slate-700">
             <Link 
               href="/" 
               onClick={closeMobileMenu} 
@@ -137,8 +131,6 @@ export default function Navbar() {
           </div>
 
           <hr className="border-slate-100" />
-
-          {/* User Section for Mobile */}
           {user ? (
             <div className="space-y-3 pt-1">
               <div className="flex items-center gap-3 px-3 py-2 bg-slate-50 rounded-2xl border border-slate-100">
@@ -154,12 +146,8 @@ export default function Navbar() {
                   <p className="text-xs text-slate-500 capitalize">{user.role || "Patient"}</p>
                 </div>
               </div>
-
               <button 
-                onClick={() => {
-                  logoutUser();
-                  closeMobileMenu();
-                }} 
+                onClick={handleLogout} 
                 className="w-full py-2.5 px-3 flex items-center justify-center gap-2 text-rose-600 bg-rose-50 hover:bg-rose-100 font-semibold rounded-xl transition-colors text-sm"
               >
                 <LogOut size={18} /> Logout
