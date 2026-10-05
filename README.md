@@ -60,17 +60,6 @@
 - **Manage Doctors:** Review and verify newly registered doctor profiles, approve status, or revoke verification.
 - **Manage Appointments & Payments:** Full oversight of platform appointments, payment records, and system health.
 
----
-
-
----
-
-## 🌟 Optional Features Implemented
-
-- **Option 1:** Dark/Light Theme Toggle with state persistence across browser reloads.
-- **Option 4:** Layout Format Switcher (Responsive Table View to Card Grid Format).
-
----
 
 ## 🛠️ Tech Stack
 
