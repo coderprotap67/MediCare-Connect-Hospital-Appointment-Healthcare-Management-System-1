@@ -7,7 +7,7 @@
 
 - **🌐 Live Web Application:** [https://healthcare-management-taupe.vercel.app](https://healthcare-management-taupe.vercel.app)
 - **💻 Client Repository:** [GitHub Client Repo](https://github.com/coderprotap67/MediCare-Connect-Hospital-Appointment-Healthcare-Management-System-1.git)
-- **🖥️ Server Repository:** [GitHub Server Repo](https://github.com/your-username/medicare-connect-server)
+- **🖥️ Server Repository:** [GitHub Server Repo](https://github.com/coderprotap67/MediCare-Connect-Hospital-Appointment-Healthcare-Management-System-2.git)
 
 ### 🔐 Admin Demo Credentials
 - **Admin Email:** `admin@medicare.com`
