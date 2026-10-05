@@ -62,16 +62,6 @@
 
 ---
 
-## 🚀 Challenges Implemented
-
-1. **🔍 Challenge 1: Advanced Doctor Search**
-   - Filter doctors dynamically by **Doctor Name** or **Medical Specialization** in real time.
-2. **↕️ Challenge 2: Multi-Criteria Sorting**
-   - Sort doctor profiles by **Consultation Fee**, **Years of Experience**, or **Highest Rating**.
-3. **🔑 Challenge 3: JWT Token Verification & Role-Based Security**
-   - Private API endpoints protected with custom backend middleware verifying authorization headers and role roles (`patient`, `doctor`, `admin`).
-4. **📄 Challenge 4: Server-Side Pagination**
-   - Find Doctors page integrated with structured pagination for scalable data browsing.
 
 ---
 
