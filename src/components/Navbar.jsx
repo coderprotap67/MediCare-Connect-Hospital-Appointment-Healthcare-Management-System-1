@@ -16,7 +16,7 @@ export default function Navbar() {
     try {
       await logoutUser();
       closeMobileMenu();
-      router.push("/"); 
+      router.push("/");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -30,7 +30,7 @@ export default function Navbar() {
             <Stethoscope size={22} />
           </div>
           <span className="text-xl font-extrabold tracking-tight text-slate-800">
-            MediCare <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-teal-500">Connect</span>
+            Hospital  <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-600 to-teal-500">Management</span>
           </span>
         </Link>
         <div className="hidden md:flex items-center gap-8 font-semibold text-slate-600 text-sm">

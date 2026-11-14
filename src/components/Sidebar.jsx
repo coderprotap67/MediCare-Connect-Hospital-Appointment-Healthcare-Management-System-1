@@ -34,7 +34,7 @@ export default function Sidebar() {
   if (loading) {
     return (
       <aside className="w-64 bg-slate-900 text-white min-h-screen p-5 flex flex-col">
-        <h2 className="text-2xl font-bold mb-8 text-cyan-400">MediCare Dashboard</h2>
+        <h2 className="text-2xl font-bold mb-8 text-cyan-400">Hospital Dashboard</h2>
         <p className="text-slate-400 text-sm">Loading navigation...</p>
       </aside>
     );

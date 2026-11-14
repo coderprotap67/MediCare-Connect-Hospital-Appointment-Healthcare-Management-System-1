@@ -3,7 +3,7 @@ export default function Footer() {
     <footer className="bg-slate-900 text-slate-300 pt-16 pb-12 mt-20 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
         <div>
-          <h3 className="text-2xl font-bold text-white mb-4">MediCare <span className="text-teal-400">Connect</span></h3>
+          <h3 className="text-2xl font-bold text-white mb-4">Hospital  <span className="text-teal-400">Management</span></h3>
           <p className="text-sm text-slate-400 leading-relaxed">
             Providing high-quality healthcare connections for patients and certified specialist doctors worldwide.
           </p>
@@ -27,11 +27,11 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-bold mb-4">Support</h4>
           <p className="text-sm text-slate-400">Emergency: +1 800 234 5678</p>
-          <p className="text-sm text-slate-400 mt-2">Email: support@medicareconnect.com</p>
+          <p className="text-sm text-slate-400 mt-2">Email: support@hospitalmanagement.com</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
-        © {new Date().getFullYear()} MediCare Connect. All rights reserved.
+        © {new Date().getFullYear()} Hospital Management. All rights reserved.
       </div>
     </footer>
   );
