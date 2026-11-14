@@ -4,7 +4,7 @@ import AuthProvider from "@/context/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 export const metadata = {
-  title: "MediCare Connect",
+  title: "hospital mangaemnet",
   description: "Healthcare Platform",
 };
 export default function RootLayout({ children }) {
