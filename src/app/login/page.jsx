@@ -1,4 +1,6 @@
+
 "use client";
+
 import { useState, useContext } from "react";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -6,17 +8,26 @@ import Link from "next/link";
 import api from "@/utils/api";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "@/firebase/firebase.config";
+
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+
   const { loginUser } = useContext(AuthContext);
   const router = useRouter();
+
+  // Normal Login
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
-      const res = await api.post("/api/auth/login", { email, password });
+      const res = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
+
       const token = res.data?.token || res.data?.accessToken;
       const user = res.data?.user || res.data;
 
@@ -28,6 +39,8 @@ export default function LoginPage() {
       if (loginUser) {
         loginUser(user);
       }
+
+      // Role Based Dashboard Redirect
       if (user?.role === "admin") {
         router.push("/dashboard/admin/analytics");
       } else if (user?.role === "doctor") {
@@ -35,15 +48,19 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard/patient");
       }
+
     } catch (err) {
       console.error("Login Error:", err);
-      setError(err?.response?.data?.message || "Invalid email or password");
+      setError(
+        err?.response?.data?.message || "Invalid email or password"
+      );
     }
   };
 
-  // গুগল দিয়ে সাইন-ইন
+  // Google Sign In
   const handleGoogleSignIn = async () => {
     setError("");
+
     try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
@@ -60,6 +77,7 @@ export default function LoginPage() {
       const res = await api.post("/api/users", userData);
 
       const token = res.data?.token || res.data?.accessToken;
+
       if (token) {
         localStorage.setItem("medicare_token", token);
         localStorage.setItem("token", token);
@@ -68,7 +86,9 @@ export default function LoginPage() {
       if (loginUser) {
         loginUser(res.data?.user || userData);
       }
+
       router.push("/dashboard/patient");
+
     } catch (err) {
       console.error("Google Sign-In Error:", err);
       setError("Google sign-in failed. Please try again.");
@@ -76,39 +96,77 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-base-200">
-      <div className="card bg-base-100 p-8 shadow-xl w-96 space-y-4">
-        <h2 className="text-2xl font-bold text-center">Login</h2>
-        {error && <p className="text-error text-sm text-center">{error}</p>}
+    <div className="min-h-screen flex justify-center items-center bg-slate-100 px-4 py-10">
 
+      {/* Login Card */}
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-5">
+
+        {/* Heading */}
+        <h2 className="text-3xl font-bold text-center text-slate-800">
+          Login
+        </h2>
+
+        <p className="text-sm text-center text-slate-500">
+          Welcome back! Please login to your account.
+        </p>
+
+        {/* Error Message */}
+        {error && (
+          <p className="text-red-500 text-sm text-center">
+            {error}
+          </p>
+        )}
+
+        {/* Login Form */}
         <form onSubmit={handleLogin} className="space-y-4">
+
+          {/* Email */}
           <input
             type="email"
             placeholder="Email"
             required
-            className="input input-bordered w-full"
+            autoComplete="email"
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => setEmail(e.target.value)}
           />
+
+          {/* Password */}
           <input
             type="password"
             placeholder="Password"
             required
-            className="input input-bordered w-full"
+            autoComplete="current-password"
+            className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button type="submit" className="btn btn-primary text-white w-full">
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 shadow-md"
+          >
             Login
           </button>
+
         </form>
 
-        <div className="divider text-xs text-base-content/50 uppercase">OR</div>
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 border-t border-slate-300"></div>
+          <span className="text-sm text-slate-400">OR</span>
+          <div className="flex-1 border-t border-slate-300"></div>
+        </div>
 
+        {/* Google Sign In */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="btn btn-outline w-full flex items-center justify-center gap-2"
+          className="w-full py-3 border border-slate-300 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-semibold hover:bg-slate-50 transition duration-300"
         >
-          <svg className="w-5 h-5" viewBox="0 0 24 24">
+          <svg
+            className="w-5 h-5"
+            viewBox="0 0 24 24"
+          >
             <path
               fill="#4285F4"
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -126,14 +184,21 @@ export default function LoginPage() {
               d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
             />
           </svg>
+
           Sign in with Google
         </button>
-        <p className="text-xs text-center text-base-content/70 mt-2">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="text-primary font-semibold hover:underline">
+
+        {/* Register Link */}
+        <p className="text-sm text-center text-slate-600">
+          Don't have an account?{" "}
+          <Link
+            href="/register"
+            className="text-blue-600 font-semibold hover:underline"
+          >
             Register
           </Link>
         </p>
+
       </div>
     </div>
   );
