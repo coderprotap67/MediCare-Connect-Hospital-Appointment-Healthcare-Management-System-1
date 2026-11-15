@@ -13,12 +13,14 @@ import {
 export default function AdminDoctorsPage() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState([]);
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/admin/doctors");
+
+      // Fixed API URL
+      const res = await api.get("/admin/doctors");
       setDoctors(res.data || []);
     } catch (err) {
       console.error("Error fetching doctors:", err);
@@ -33,7 +35,7 @@ export default function AdminDoctorsPage() {
 
   const handleVerify = async (doctorId, status) => {
     try {
-      await api.patch(`/api/admin/doctors/${doctorId}/verify`, {
+      await api.patch(`/admin/doctors/${doctorId}/verify`, {
         status,
       });
 
@@ -125,7 +127,6 @@ export default function AdminDoctorsPage() {
               key={doc._id}
               className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 min-w-0"
             >
-              {/* Doctor Details */}
               <div className="mb-4 min-w-0">
                 <h3 className="font-bold text-slate-800 text-base break-words">
                   {doc.name || "Dr. Name"}
@@ -136,7 +137,6 @@ export default function AdminDoctorsPage() {
                 </p>
               </div>
 
-              {/* Specialization */}
               <div className="mb-4">
                 <p className="text-xs font-semibold text-slate-500 mb-1">
                   Specialization
@@ -147,7 +147,6 @@ export default function AdminDoctorsPage() {
                 </p>
               </div>
 
-              {/* Status */}
               <div className="flex items-center justify-between gap-2 mb-4">
                 <span className="text-xs font-semibold text-slate-500">
                   Verification Status
@@ -162,9 +161,7 @@ export default function AdminDoctorsPage() {
                 </span>
               </div>
 
-              {/* Actions */}
               <div className="grid grid-cols-2 gap-2">
-
                 <button
                   onClick={() => handleVerify(doc._id, "verified")}
                   className="w-full px-3 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-sm transition inline-flex items-center justify-center gap-1"
@@ -180,7 +177,6 @@ export default function AdminDoctorsPage() {
                   <X size={16} />
                   Reject
                 </button>
-
               </div>
             </div>
           ))

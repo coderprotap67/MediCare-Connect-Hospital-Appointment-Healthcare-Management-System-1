@@ -19,7 +19,9 @@ export default function AdminUsersPage() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/api/admin/users");
+
+      // Fixed API URL
+      const res = await api.get("/admin/users");
       setUsers(res.data || []);
     } catch (err) {
       console.error("Error fetching users:", err);
@@ -34,7 +36,7 @@ export default function AdminUsersPage() {
 
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await api.patch(`/api/admin/users/${userId}/role`, {
+      await api.patch(`/admin/users/${userId}/role`, {
         role: newRole,
       });
 
@@ -56,7 +58,7 @@ export default function AdminUsersPage() {
       currentStatus === "blocked" ? "active" : "blocked";
 
     try {
-      await api.patch(`/api/admin/users/${userId}/status`, {
+      await api.patch(`/admin/users/${userId}/status`, {
         status: newStatus,
       });
 
@@ -134,7 +136,6 @@ export default function AdminUsersPage() {
               key={u._id}
               className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 min-w-0"
             >
-              {/* User Details */}
               <div className="mb-4 min-w-0">
                 <h3 className="font-bold text-slate-800 text-base break-words">
                   {u.name || "No Name"}
