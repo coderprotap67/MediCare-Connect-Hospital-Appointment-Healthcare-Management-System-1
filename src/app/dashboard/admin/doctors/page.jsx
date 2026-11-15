@@ -1,7 +1,14 @@
+
 "use client";
+
 import { useState, useEffect } from "react";
 import api from "@/utils/api";
-import { UserCheck, Check, X, Search } from "lucide-react";
+import {
+  UserCheck,
+  Check,
+  X,
+  Search,
+} from "lucide-react";
 
 export default function AdminDoctorsPage() {
   const [doctors, setDoctors] = useState([]);
@@ -26,10 +33,18 @@ export default function AdminDoctorsPage() {
 
   const handleVerify = async (doctorId, status) => {
     try {
-      await api.patch(`/api/admin/doctors/${doctorId}/verify`, { status });
+      await api.patch(`/api/admin/doctors/${doctorId}/verify`, {
+        status,
+      });
+
       setDoctors((prev) =>
-        prev.map((doc) => (doc._id === doctorId ? { ...doc, verificationStatus: status } : doc))
+        prev.map((doc) =>
+          doc._id === doctorId
+            ? { ...doc, verificationStatus: status }
+            : doc
+        )
       );
+
       alert(`Doctor status changed to ${status}`);
     } catch (err) {
       console.error("Failed to update status:", err);
@@ -43,6 +58,18 @@ export default function AdminDoctorsPage() {
       doc.specialization?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const getStatusStyle = (status) => {
+    if (status === "verified") {
+      return "bg-emerald-50 text-emerald-600";
+    }
+
+    if (status === "rejected") {
+      return "bg-rose-50 text-rose-600";
+    }
+
+    return "bg-amber-50 text-amber-600";
+  };
+
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -52,90 +79,205 @@ export default function AdminDoctorsPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-            <UserCheck className="text-sky-600" /> Doctor Verification
+    <div className="w-full max-w-6xl mx-auto min-w-0 px-3 sm:px-4 py-5 sm:py-8">
+
+      {/* Header */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 sm:mb-8">
+
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
+            <UserCheck className="text-sky-600 shrink-0" />
+            <span>Doctor Verification</span>
           </h1>
-          <p className="text-slate-500 text-sm mt-1">
+
+          <p className="text-slate-500 text-sm mt-2">
             Review applicant documents, verify credentials, or reject requests.
           </p>
         </div>
-        <div className="relative w-full md:w-72">
-          <Search size={18} className="absolute left-3.5 top-3 text-slate-400" />
+
+        {/* Search */}
+        <div className="relative w-full lg:w-80">
+          <Search
+            size={18}
+            className="absolute left-3.5 top-3 text-slate-400"
+          />
+
           <input
             type="text"
             placeholder="Search doctor or specialty..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm outline-none focus:ring-2 focus:ring-sky-500"
           />
         </div>
       </div>
 
-      <div className="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+      {/* Mobile Doctor Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:hidden">
+
+        {filteredDoctors.length === 0 ? (
+          <div className="col-span-full bg-white rounded-2xl border p-8 text-center text-slate-400">
+            No doctors found for verification.
+          </div>
+        ) : (
+          filteredDoctors.map((doc) => (
+            <div
+              key={doc._id}
+              className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 min-w-0"
+            >
+              {/* Doctor Details */}
+              <div className="mb-4 min-w-0">
+                <h3 className="font-bold text-slate-800 text-base break-words">
+                  {doc.name || "Dr. Name"}
+                </h3>
+
+                <p className="text-xs text-slate-400 mt-1 break-all">
+                  {doc.email}
+                </p>
+              </div>
+
+              {/* Specialization */}
+              <div className="mb-4">
+                <p className="text-xs font-semibold text-slate-500 mb-1">
+                  Specialization
+                </p>
+
+                <p className="text-sm font-medium text-slate-700 break-words">
+                  {doc.specialization || "General"}
+                </p>
+              </div>
+
+              {/* Status */}
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <span className="text-xs font-semibold text-slate-500">
+                  Verification Status
+                </span>
+
+                <span
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold capitalize ${getStatusStyle(
+                    doc.verificationStatus
+                  )}`}
+                >
+                  {doc.verificationStatus || "pending"}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <div className="grid grid-cols-2 gap-2">
+
+                <button
+                  onClick={() => handleVerify(doc._id, "verified")}
+                  className="w-full px-3 py-2.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-semibold text-sm transition inline-flex items-center justify-center gap-1"
+                >
+                  <Check size={16} />
+                  Verify
+                </button>
+
+                <button
+                  onClick={() => handleVerify(doc._id, "rejected")}
+                  className="w-full px-3 py-2.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-semibold text-sm transition inline-flex items-center justify-center gap-1"
+                >
+                  <X size={16} />
+                  Reject
+                </button>
+
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Tablet and Desktop Table */}
+      <div className="hidden md:block bg-white rounded-2xl lg:rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+          <table className="w-full min-w-[700px] text-left text-sm">
+
             <thead className="bg-slate-50 text-slate-600 font-semibold border-b border-slate-100">
               <tr>
-                <th className="px-6 py-4">Doctor Details</th>
-                <th className="px-6 py-4">Specialization</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4 text-right">Actions</th>
+                <th className="px-4 lg:px-6 py-4">Doctor Details</th>
+                <th className="px-4 lg:px-6 py-4">Specialization</th>
+                <th className="px-4 lg:px-6 py-4">Status</th>
+                <th className="px-4 lg:px-6 py-4 text-right">Actions</th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-slate-100">
+
               {filteredDoctors.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="text-center py-8 text-slate-400">
+                  <td
+                    colSpan={4}
+                    className="text-center py-8 text-slate-400"
+                  >
                     No doctors found for verification.
                   </td>
                 </tr>
               ) : (
                 filteredDoctors.map((doc) => (
-                  <tr key={doc._id} className="hover:bg-slate-50/50 transition">
-                    <td className="px-6 py-4">
-                      <div className="font-bold text-slate-800">{doc.name || "Dr. Name"}</div>
-                      <div className="text-xs text-slate-400">{doc.email}</div>
+                  <tr
+                    key={doc._id}
+                    className="hover:bg-slate-50/50 transition"
+                  >
+                    <td className="px-4 lg:px-6 py-4">
+                      <div className="font-bold text-slate-800 break-words">
+                        {doc.name || "Dr. Name"}
+                      </div>
+
+                      <div className="text-xs text-slate-400 break-all">
+                        {doc.email}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 font-medium text-slate-600">
+
+                    <td className="px-4 lg:px-6 py-4 font-medium text-slate-600">
                       {doc.specialization || "General"}
                     </td>
-                    <td className="px-6 py-4">
+
+                    <td className="px-4 lg:px-6 py-4">
                       <span
-                        className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold capitalize ${
-                          doc.verificationStatus === "verified"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : doc.verificationStatus === "rejected"
-                            ? "bg-rose-50 text-rose-600"
-                            : "bg-amber-50 text-amber-600"
-                        }`}
+                        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold capitalize ${getStatusStyle(
+                          doc.verificationStatus
+                        )}`}
                       >
                         {doc.verificationStatus || "pending"}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right space-x-2">
-                      <button
-                        onClick={() => handleVerify(doc._id, "verified")}
-                        className="px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-medium text-xs transition inline-flex items-center gap-1"
-                      >
-                        <Check size={14} /> Verify
-                      </button>
-                      <button
-                        onClick={() => handleVerify(doc._id, "rejected")}
-                        className="px-3 py-1.5 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-medium text-xs transition inline-flex items-center gap-1"
-                      >
-                        <X size={14} /> Reject
-                      </button>
+
+                    <td className="px-4 lg:px-6 py-4 text-right">
+                      <div className="flex justify-end flex-wrap gap-2">
+
+                        <button
+                          onClick={() => handleVerify(doc._id, "verified")}
+                          className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-600 hover:bg-emerald-100 font-medium text-xs transition inline-flex items-center gap-1"
+                        >
+                          <Check size={14} />
+                          Verify
+                        </button>
+
+                        <button
+                          onClick={() => handleVerify(doc._id, "rejected")}
+                          className="px-3 py-2 rounded-xl bg-rose-50 text-rose-600 hover:bg-rose-100 font-medium text-xs transition inline-flex items-center gap-1"
+                        >
+                          <X size={14} />
+                          Reject
+                        </button>
+
+                      </div>
                     </td>
                   </tr>
                 ))
               )}
+
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Total Doctors */}
+      <p className="text-xs text-slate-500 mt-4 text-right">
+        Total Doctors: {filteredDoctors.length}
+      </p>
+
     </div>
   );
 }
