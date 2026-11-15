@@ -13,6 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { loginUser } = useContext(AuthContext);
   const router = useRouter();
@@ -21,9 +22,10 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
-      const res = await api.post("/api/auth/login", {
+      const res = await api.post("/auth/login", {
         email,
         password,
       });
@@ -48,18 +50,21 @@ export default function LoginPage() {
       } else {
         router.push("/dashboard/patient");
       }
-
     } catch (err) {
       console.error("Login Error:", err);
+
       setError(
         err?.response?.data?.message || "Invalid email or password"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   // Google Sign In
   const handleGoogleSignIn = async () => {
     setError("");
+    setLoading(true);
 
     try {
       const provider = new GoogleAuthProvider();
@@ -74,7 +79,7 @@ export default function LoginPage() {
         status: "active",
       };
 
-      const res = await api.post("/api/users", userData);
+      const res = await api.post("/users", userData);
 
       const token = res.data?.token || res.data?.accessToken;
 
@@ -88,10 +93,15 @@ export default function LoginPage() {
       }
 
       router.push("/dashboard/patient");
-
     } catch (err) {
       console.error("Google Sign-In Error:", err);
-      setError("Google sign-in failed. Please try again.");
+
+      setError(
+        err?.response?.data?.message ||
+        "Google sign-in failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -126,6 +136,7 @@ export default function LoginPage() {
             placeholder="Email"
             required
             autoComplete="email"
+            value={email}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => setEmail(e.target.value)}
           />
@@ -136,6 +147,7 @@ export default function LoginPage() {
             placeholder="Password"
             required
             autoComplete="current-password"
+            value={password}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) => setPassword(e.target.value)}
           />
@@ -143,9 +155,10 @@ export default function LoginPage() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 shadow-md"
+            disabled={loading}
+            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 shadow-md disabled:opacity-60"
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
 
         </form>
@@ -161,7 +174,8 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full py-3 border border-slate-300 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-semibold hover:bg-slate-50 transition duration-300"
+          disabled={loading}
+          className="w-full py-3 border border-slate-300 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-semibold hover:bg-slate-50 transition duration-300 disabled:opacity-60"
         >
           <svg
             className="w-5 h-5"

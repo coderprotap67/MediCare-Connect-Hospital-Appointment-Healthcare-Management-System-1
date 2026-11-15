@@ -18,6 +18,7 @@ export default function RegisterPage() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const { loginUser } = useContext(AuthContext);
   const router = useRouter();
@@ -37,19 +38,26 @@ export default function RegisterPage() {
       return;
     }
 
+    setLoading(true);
+
     try {
-      await api.post("/api/auth/register", formData);
+      await api.post("/auth/register", formData);
       router.push("/login");
     } catch (err) {
+      console.error("Registration Error:", err);
+
       setError(
         err.response?.data?.message || "Registration failed"
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   // Google Sign In
   const handleGoogleSignIn = async () => {
     setError("");
+    setLoading(true);
 
     try {
       const provider = new GoogleAuthProvider();
@@ -64,17 +72,29 @@ export default function RegisterPage() {
         status: "active",
       };
 
-      await api.post("/api/users", userData);
+      const res = await api.post("/users", userData);
+
+      const token = res.data?.token || res.data?.accessToken;
+
+      if (token) {
+        localStorage.setItem("medicare_token", token);
+        localStorage.setItem("token", token);
+      }
 
       if (loginUser) {
-        loginUser(userData);
+        loginUser(res.data?.user || userData);
       }
 
       router.push("/dashboard/patient");
-
     } catch (err) {
       console.error("Google Sign-In Error:", err);
-      setError("Google sign-in failed. Please try again.");
+
+      setError(
+        err?.response?.data?.message ||
+        "Google sign-in failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,6 +125,7 @@ export default function RegisterPage() {
             placeholder="Full Name"
             required
             autoComplete="name"
+            value={formData.name}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) =>
               setFormData({
@@ -120,6 +141,7 @@ export default function RegisterPage() {
             placeholder="Email"
             required
             autoComplete="email"
+            value={formData.email}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) =>
               setFormData({
@@ -135,6 +157,7 @@ export default function RegisterPage() {
             placeholder="Password (Minimum 6 characters)"
             required
             autoComplete="new-password"
+            value={formData.password}
             className="w-full px-4 py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             onChange={(e) =>
               setFormData({
@@ -162,9 +185,10 @@ export default function RegisterPage() {
           {/* Register Button */}
           <button
             type="submit"
-            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 shadow-md"
+            disabled={loading}
+            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition duration-300 shadow-md disabled:opacity-60"
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
 
         </form>
@@ -180,7 +204,8 @@ export default function RegisterPage() {
         <button
           type="button"
           onClick={handleGoogleSignIn}
-          className="w-full py-3 border border-slate-300 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-semibold hover:bg-slate-50 transition duration-300"
+          disabled={loading}
+          className="w-full py-3 border border-slate-300 rounded-lg flex items-center justify-center gap-3 text-slate-700 font-semibold hover:bg-slate-50 transition duration-300 disabled:opacity-60"
         >
           <svg
             className="w-5 h-5"
@@ -188,7 +213,7 @@ export default function RegisterPage() {
           >
             <path
               fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
             />
             <path
               fill="#34A853"
